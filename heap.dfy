@@ -28,7 +28,7 @@ class MaxHeap
     // TODO: fix pre/post conditions
     method MaxHeapify(i: int)
         modifies arr
-        requires 0 <= i < heapSize < arr.Length
+        requires 0 <= i < heapSize < arr.Length    // shouldn't this only be for internal nodes?
         decreases heapSize - i  // This probably is not correct and needs to be changed
         // ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
     {
@@ -50,13 +50,14 @@ class MaxHeap
     }
 
     method parent(i: int) returns (parent: int)
-        requires i > 0
+        requires 0 < i < heapSize   // i is a valid index in the heap.
+        ensures 0 <= parent < i    // parent precedes i.
     {
         parent := (i - 1) / 2;
     }
 
     method lChild(i: int) returns (right: int)
-        requires i >= 0
+        requires i >= 0 
     {
         right := (2 * i) + 1;
     }
