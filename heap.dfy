@@ -5,12 +5,12 @@
 class MaxHeap
 {
     var arr: array<int>
-    var maxSize: int
+    const maxSize: int      // this value shouldn't change ==> declared as const
     var heapSize: int
 
     constructor(size: int)
         requires size >= 0
-        ensures arr.Length == size
+        ensures maxSize == arr.Length == size      // was missing maxSize
         ensures heapSize == 0
     {   
         maxSize := size;
