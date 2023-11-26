@@ -57,13 +57,15 @@ class MaxHeap
     }
 
     method lChild(i: int) returns (right: int)
-        requires i >= 0 
+        requires 0 <= i < heapSize / 2    // i is an internal node in the heap.
+        ensures i < right < heapSize    // i precedes right.
     {
         right := (2 * i) + 1;
     }
 
     method rChild(i: int) returns (left: int)
-        requires i >= 0
+        requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
+        ensures i < left < heapSize     // i precedes left.
     {
         left := (2 * i) + 2;
     }
