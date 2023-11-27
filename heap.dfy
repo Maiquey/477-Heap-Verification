@@ -28,17 +28,24 @@ class MaxHeap
     // TODO: fix pre/post conditions
     method MaxHeapify(i: int)
         modifies arr
-        requires 0 <= heapSize <= arr.Length    // heapSize is within upper bound of maxSize
-        requires 0 <= i < heapSize / 2 < arr.Length    // heapify internal nodes of heap
+        requires 0 <= i < heapSize <= arr.Length    // heapSize is within upper bound of maxSize
         decreases heapSize - i  // This probably is not correct and needs to be changed
-        ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
+        // ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
     {
-        var l := lChild(i);
-        var r := rChild(i);
-        // var l := (2*i) + 1;
-        // var r := (2*i) + 2;
+        // It's possible that i may not have a left or right child, so initialize
+        // both left child and right child to a value that makes below comparisons false.
+        var l: int := heapSize;     
+        var r: int := heapSize;
+        // If a child exists, then set l and/or r to the returned child.
+        if (2 * i) + 1 < heapSize {
+            l := lChild(i);
+        }
+        if (2 * i) + 2 < heapSize {
+            r := rChild(i);
+        }
+        
         var largest := i;
-        if l < heapSize && arr[l] > arr[i]{
+        if l < heapSize && arr[l] > arr[largest]{
             largest := l;
         }
         if r < heapSize && arr[r] > arr[largest] {
@@ -46,7 +53,7 @@ class MaxHeap
         }
         if largest != i {
             arr[i], arr[largest] := arr[largest], arr[i];
-            MaxHeapify(largest);
+            MaxHeapify(largest);    // must assume and assert recursive calls.
         }
     }
 
@@ -59,7 +66,7 @@ class MaxHeap
 
     method lChild(i: int) returns (left: int)
         requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
-        requires 2 * i + 1 < heapSize       // left child of i exists in the heap.
+        requires (2 * i) + 1 < heapSize       // left child of i exists in the heap.
         ensures i < left < heapSize         // i precedes left.
     {
         left := (2 * i) + 1;
@@ -67,7 +74,7 @@ class MaxHeap
 
     method rChild(i: int) returns (right: int)
         requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
-        requires 2 * i + 2 < heapSize       // right child of i exists in the heap.
+        requires (2 * i) + 2 < heapSize       // right child of i exists in the heap.
         ensures i < right < heapSize        // i precedes right.
     {
         right := (2 * i) + 2;
