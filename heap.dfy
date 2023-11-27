@@ -18,7 +18,9 @@ class MaxHeap
         heapSize := 0;
     }
 
-    predicate isMaxHeap(heapSize: int, arr: array<int>)
+    // I think this predicate contributes to MaxHeapify()'s 'ensures' clause not being verified.
+    // Need to ensure that the max heap property holds after each recursive call of MaxHeapify().
+    predicate isMaxHeap(heapSize: int, arr: array<int>)     
         reads arr
         requires 0 <= heapSize <= arr.Length
     {
@@ -56,7 +58,7 @@ class MaxHeap
             arr[i], arr[largest] := arr[largest], arr[i];
             assert(0 <= largest < heapSize <= arr.Length);
             MaxHeapify(largest);    
-            assume(isMaxHeap(heapSize, arr));
+            // assume(isMaxHeap(heapSize, arr));
             assume(multiset(arr[..]) == multiset(old(arr[..])));
         }
     }
