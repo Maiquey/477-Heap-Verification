@@ -28,14 +28,15 @@ class MaxHeap
     // TODO: fix pre/post conditions
     method MaxHeapify(i: int)
         modifies arr
-        requires 0 <= i < heapSize < arr.Length    // shouldn't this only be for internal nodes?
+        requires 0 <= heapSize <= arr.Length    // heapSize is within upper bound of maxSize
+        requires 0 <= i < heapSize / 2 < arr.Length    // heapify internal nodes of heap
         decreases heapSize - i  // This probably is not correct and needs to be changed
-        // ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
+        ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
     {
-        // var l := lChild(i);
-        // var r := rChild(i);
-        var l := (2*i) + 1;
-        var r := (2*i) + 2;
+        var l := lChild(i);
+        var r := rChild(i);
+        // var l := (2*i) + 1;
+        // var r := (2*i) + 2;
         var largest := i;
         if l < heapSize && arr[l] > arr[i]{
             largest := l;
@@ -56,18 +57,20 @@ class MaxHeap
         parent := (i - 1) / 2;
     }
 
-    method lChild(i: int) returns (right: int)
-        requires 0 <= i < heapSize / 2    // i is an internal node in the heap.
-        ensures i < right < heapSize    // i precedes right.
+    method lChild(i: int) returns (left: int)
+        requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
+        requires 2 * i + 1 < heapSize       // left child of i exists in the heap.
+        ensures i < left < heapSize         // i precedes left.
     {
-        right := (2 * i) + 1;
+        left := (2 * i) + 1;
     }
 
-    method rChild(i: int) returns (left: int)
+    method rChild(i: int) returns (right: int)
         requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
-        ensures i < left < heapSize     // i precedes left.
+        requires 2 * i + 2 < heapSize       // right child of i exists in the heap.
+        ensures i < right < heapSize        // i precedes right.
     {
-        left := (2 * i) + 2;
+        right := (2 * i) + 2;
     }
 
     // Issue: Can't resolve error at 'heapSize := heapSize - 1', so I put assume() for now so that at least it doesn't give error
