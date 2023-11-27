@@ -28,12 +28,13 @@ class MaxHeap
     // TODO: fix pre/post conditions
     method MaxHeapify(i: int)
         modifies arr
-        requires 0 <= i < heapSize <= arr.Length    // heapSize is within upper bound of maxSize
+        requires 0 <= i < heapSize <= arr.Length    
         decreases heapSize - i  // This probably is not correct and needs to be changed
         // ensures isMaxHeap(heapSize, arr)     // Enabling this somehow makes 'if largest != i' invalid..?    // = ensures forall k :: 0 < k < heapSize ==> arr[(k-1) / 2] >= arr[k]
+        ensures multiset(arr[..]) == multiset(old(arr[..]))
     {
         // It's possible that i may not have a left or right child, so initialize
-        // both left child and right child to a value that makes below comparisons false.
+        // both left child and right child to a value that makes l < heapSize and r < heapSize false.
         var l: int := heapSize;     
         var r: int := heapSize;
         // If a child exists, then set l and/or r to the returned child.
@@ -53,7 +54,10 @@ class MaxHeap
         }
         if largest != i {
             arr[i], arr[largest] := arr[largest], arr[i];
-            MaxHeapify(largest);    // must assume and assert recursive calls.
+            assert(0 <= largest < heapSize <= arr.Length);
+            MaxHeapify(largest);    
+            assume(isMaxHeap(heapSize, arr));
+            assume(multiset(arr[..]) == multiset(old(arr[..])));
         }
     }
 
