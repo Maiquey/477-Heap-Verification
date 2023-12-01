@@ -40,15 +40,15 @@ class MaxHeap
         var l: int := heapSize;     
         var r: int := heapSize;
         // If a child exists, then set l and/or r to the returned child.
-        if (2 * i) + 1 < heapSize {
+        if i < heapSize / 2 && (2 * i) + 1 < heapSize {
             l := lChild(i);
         }
-        if (2 * i) + 2 < heapSize {
+        if i < heapSize / 2 && (2 * i) + 2 < heapSize {
             r := rChild(i);
         }
         
         var largest := i;
-        if l < heapSize && arr[l] > arr[largest]{
+        if l < heapSize && arr[l] > arr[largest] {
             largest := l;
         }
         if r < heapSize && arr[r] > arr[largest] {
@@ -66,6 +66,7 @@ class MaxHeap
     method parent(i: int) returns (parent: int)
         requires 0 < i < heapSize   // i is a valid index in the heap.
         ensures 0 <= parent < i    // parent precedes i.
+        ensures parent == (i - 1) / 2
     {
         parent := (i - 1) / 2;
     }
@@ -74,6 +75,7 @@ class MaxHeap
         requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
         requires (2 * i) + 1 < heapSize       // left child of i exists in the heap.
         ensures i < left < heapSize         // i precedes left.
+        ensures left == (2 * i) + 1
     {
         left := (2 * i) + 1;
     }
@@ -82,6 +84,7 @@ class MaxHeap
         requires 0 <= i < heapSize / 2      // i is an internal node in the heap.
         requires (2 * i) + 2 < heapSize       // right child of i exists in the heap.
         ensures i < right < heapSize        // i precedes right.
+        ensures right == (2 * i) + 2
     {
         right := (2 * i) + 2;
     }
@@ -151,26 +154,25 @@ class MaxHeap
 
     // TODO: fix errors
     // Issues: 
-    // - 'modifies this' causes issues for arr indexing for some reason?
     // - loop invariant isn't quite right
     // - pre and post condition behaving strangely
-    // - Can't resolve error at 'heapSize := heapSize + 1', so I put assume() for now so that at least it doesn't give error
     method insertKey(x: int)
-        modifies arr//, this
-        requires 0 <= heapSize <= arr.Length < maxSize
+        modifies this, arr
+        requires 0 <= heapSize < arr.Length
         requires isMaxHeap(heapSize, arr)    // requires forall k :: 0 < k < heapSize ==> arr[(k-1)/2] >= arr[k]
+        ensures 0 < heapSize <= arr.Length
         ensures isMaxHeap(heapSize, arr)     // ensures  forall k :: 0 < k < heapSize ==> arr[(k-1)/2] >= arr[k]
     {
         var i := heapSize;
-        assume(heapSize == heapSize + 1);   // I think this is wrong, but I couldn't figure out how to resolve the error when doing heapSize := heapSize + 1
-        // heapSize := heapSize + 1;
+        heapSize := heapSize + 1;
         arr[i] := x;
 
         while i != 0 && arr[(i-1)/2] < arr[i]
-            invariant isMaxHeap(heapSize + 1, arr)
+            modifies arr
             invariant heapSize == old(heapSize) + 1
-            invariant 0 <= i <= heapSize
-            invariant forall k :: 0 < k < heapSize + 1 && k != i ==> arr[(k-1)/2] >= arr[k]
+            invariant 0 <= i
+            invariant i <= heapSize <= arr.Length
+            invariant forall k :: 0 < k < heapSize && k != i ==> arr[(k-1)/2] >= arr[k]
         {
             arr[i], arr[(i-1)/2] := arr[(i-1)/2], arr[i];
             i := (i-1)/2;
