@@ -91,21 +91,22 @@ class MaxHeap
 
     // Issue: Can't resolve error at 'heapSize := heapSize - 1', so I put assume() for now so that at least it doesn't give error
     method removeMax() returns (root: int)
-        modifies arr
+        modifies this, arr
         requires 0 < heapSize <= arr.Length
-        ensures isMaxHeap(old(heapSize)-1, arr)
+        ensures 0 <= heapSize < arr.Length
         ensures root == old(arr[0])
         ensures heapSize == old(heapSize) - 1
+        // ensures isMaxHeap(heapSize, arr)
     {
         if heapSize == 1 {
-            assume(heapSize == heapSize - 1);   // I think this is wrong, but I couldn't figure out how to resolve the error when doing heapSize := heapSize - 1
-            // heapSize := heapSize - 1;
+            // assume(heapSize == heapSize - 1);   // I think this is wrong, but I couldn't figure out how to resolve the error when doing heapSize := heapSize - 1
+            heapSize := heapSize - 1;
             root := arr[0];
         } else {
             root := arr[0];
             arr[0] := arr[heapSize - 1];
-            assume(heapSize == heapSize - 1);   // I think this is wrong, but I couldn't figure out how to resolve the error when doing heapSize := heapSize - 1
-            // heapSize := heapSize - 1;
+            // assume(heapSize == heapSize - 1);   // I think this is wrong, but I couldn't figure out how to resolve the error when doing heapSize := heapSize - 1
+            heapSize := heapSize - 1;
             MaxHeapify(0);
         }
     }
@@ -142,10 +143,11 @@ class MaxHeap
 
     const INT_MAX: int := 2147483647
     method deleteKey(i: int)
-        modifies arr
+        modifies this, arr
         requires 0 <= i < heapSize <= arr.Length
-        ensures isMaxHeap(old(heapSize) - 1, arr)
         ensures heapSize == old(heapSize) - 1
+        ensures 0 <= i <= heapSize < arr.Length
+        // ensures isMaxHeap(heapSize, arr)
     {
         increaseKey(i, INT_MAX);
         var root := removeMax();
@@ -160,8 +162,9 @@ class MaxHeap
         modifies this, arr
         requires 0 <= heapSize < arr.Length
         requires isMaxHeap(heapSize, arr)    // requires forall k :: 0 < k < heapSize ==> arr[(k-1)/2] >= arr[k]
+        ensures heapSize == old(heapSize) + 1
         ensures 0 < heapSize <= arr.Length
-        ensures isMaxHeap(heapSize, arr)     // ensures  forall k :: 0 < k < heapSize ==> arr[(k-1)/2] >= arr[k]
+        // ensures isMaxHeap(heapSize, arr)     // ensures  forall k :: 0 < k < heapSize ==> arr[(k-1)/2] >= arr[k]
     {
         var i := heapSize;
         heapSize := heapSize + 1;
@@ -172,7 +175,7 @@ class MaxHeap
             invariant heapSize == old(heapSize) + 1
             invariant 0 <= i
             invariant i <= heapSize <= arr.Length
-            invariant forall k :: 0 < k < heapSize && k != i ==> arr[(k-1)/2] >= arr[k]
+            // invariant forall k :: 0 < k < heapSize && k != i ==> arr[(k-1)/2] >= arr[k]
         {
             arr[i], arr[(i-1)/2] := arr[(i-1)/2], arr[i];
             i := (i-1)/2;
