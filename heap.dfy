@@ -132,11 +132,13 @@ class MaxHeap
 
     method getMax() returns (max: int)
         requires 0 < heapSize <= arr.Length
+        ensures max == arr[0]
     {
         max := arr[0];
     }
 
     method curSize() returns (currentSize: int)
+        ensures currentSize == heapSize
     {
         currentSize := heapSize;
     }
