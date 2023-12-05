@@ -132,6 +132,7 @@ method increaseKey(arr: array<int>, heapSize: int, i: int, newVal: int)
     requires isMaxHeap(arr[..], heapSize)
     modifies arr
     ensures isMaxHeap(arr[..], heapSize)  
+    ensures isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
 {
     arr[i] := newVal;
     assert(isMaxHeapChildren(arr[..], i, heapSize));
@@ -182,6 +183,22 @@ method bubbleUp(bubble: int, heapSize: int, arr: array<int>)
         arr[i], arr[(i-1)/2] := arr[(i-1)/2], arr[i];
         i := (i-1)/2;
     }
+}
+
+const INT_MAX: int := 2147483647
+method deleteKey(arr: array<int>, heapSize: int, i: int) returns (root: int, newHeapSize: int)
+    requires 0 <= i < heapSize <= arr.Length
+    requires INT_MAX > arr[i]
+    requires isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeapChildren(arr[..], 0, heapSize)
+    requires isMaxHeap(arr[..], heapSize)
+    modifies arr
+    ensures newHeapSize == heapSize - 1
+    ensures 0 <= i <= newHeapSize < arr.Length
+    ensures isMaxHeap(arr[..], newHeapSize)
+{
+    increaseKey(arr, heapSize, i, INT_MAX);
+    root, newHeapSize := removeMax(arr, heapSize);
 }
 
 // Test method that maxHeapify does it's job
