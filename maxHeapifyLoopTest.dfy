@@ -123,9 +123,21 @@ predicate isMaxHeapParents(arr: seq<int>, index: int, heapSize: int)
         (0 <= parent(i, heapSize) < heapSize ==> arr[parent(i, heapSize)] >= arr[i]))
 }
 
+predicate isMaxHeapChildren(arr: seq<int>, index: int, heapSize: int)
+    requires index <= heapSize <= |arr|
+{
+    (forall k :: 0 <= k < heapSize  ==>
+        (2*k+1 < heapSize && 2*k+1 != index ==> arr[k] >= arr[2*k+1])
+        && (2*k+2 < heapSize && 2*k+2 != index  ==> arr[k] >= arr[2*k+2]))
+            && (0 <= parent(index, heapSize) < heapSize && 2*index+1 < heapSize ==> arr[parent(index, heapSize)] >= arr[2*index+1])
+            && (0 <= parent(index, heapSize) < heapSize && 2*index+2 < heapSize ==> arr[parent(index, heapSize)] >= arr[2*index+2])
+}
+
 method insertKey(arr: array<int>, heapSize: int, x: int) returns (newHeapSize: int)
     requires 0 <= heapSize < arr.Length
-    requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    requires heapSize == 2
+    requires isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeapChildren(arr[..], 0, heapSize)
     requires isMaxHeap(arr[..], heapSize)
     modifies arr
     ensures 0 < newHeapSize <= arr.Length
@@ -140,24 +152,30 @@ method insertKey(arr: array<int>, heapSize: int, x: int) returns (newHeapSize: i
         arr[i] := x;
         newHeapSize := heapSize + 1;
         assert(isMaxHeapParents(arr[..], i, newHeapSize));
-        bubbleUp(0, newHeapSize, arr);
+        assert(isMaxHeapChildren(arr[..], i, newHeapSize));
+        bubbleUp(i, newHeapSize, arr);
     }
 }
 
 method bubbleUp(bubble: int, heapSize: int, arr: array<int>)
     requires 0 <= bubble < heapSize <= arr.Length
-    requires isMaxHeapParents(arr[..], bubble, heapSize)
+    requires isMaxHeapChildren(arr[..], bubble, heapSize)
     modifies arr
-    ensures isMaxHeapParents(arr[..], 0, heapSize)
+    ensures isMaxHeapChildren(arr[..], 0, heapSize)
     ensures isMaxHeap(arr[..], heapSize)
 {
     var i := bubble;
-
+    
     while i > 0 && arr[(i-1)/2] < arr[i]
         invariant 0 <= i < heapSize
-        invariant isMaxHeapParents(arr[..], i, heapSize)
+        invariant isMaxHeapChildren(arr[..], i, heapSize)
         decreases i
     {
+        var parent := (i - 1)/2;
+        assert(arr[i] > arr[parent]);
+        //assert that element at index i is greater than or equal to its sibling
+        assert((2*parent+1 < heapSize && 2*parent+1 != i ==> arr[i] >= arr[2*parent+1]) && (2*parent+2 < heapSize && 2*parent+2 != i ==> arr[i] >= arr[2*parent+2]));
+        
         arr[i], arr[(i-1)/2] := arr[(i-1)/2], arr[i];
         i := (i-1)/2;
     }
