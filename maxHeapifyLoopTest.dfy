@@ -90,6 +90,28 @@ method maxHeapify(root: int, heapSize: int, arr: array<int>)
     }
 }
 
+method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize: int)
+    requires 0 < heapSize <= arr.Length
+    requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeap(arr[..], heapSize)
+    modifies arr
+    ensures 0 <= newHeapSize < arr.Length
+    ensures newHeapSize == heapSize - 1
+    ensures isMaxHeap(arr[..], newHeapSize)
+    ensures root == old(arr[0])
+{
+    if heapSize == 1 {
+        newHeapSize := heapSize - 1;
+        root := arr[0];
+    } else {
+        root := arr[0];
+        arr[0] := arr[heapSize - 1];
+        newHeapSize := heapSize - 1;
+        assert(isMaxHeapParentsAndChildren(arr[..], 0, newHeapSize));
+        maxHeapify(0, newHeapSize, arr);
+    }
+}
+
 // Test method that maxHeapify does it's job
 method main() {
     var arr := new int[10][10, 0, 9, 8, 9, 7, 6, 5, 4, 3];
