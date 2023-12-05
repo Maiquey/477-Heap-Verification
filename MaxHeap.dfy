@@ -200,36 +200,3 @@ method increaseKey(arr: array<int>, heapSize: int, i: int, newVal: int)
     assert(isMaxHeapChildren(arr[..], i, heapSize));
     bubbleUp(i, heapSize, arr);
 }
-
-// Deletes an element at a specified index then fixes the heap structure (Max Heap property maintained before and after operation)
-const INT_MAX: int := 2147483647
-method deleteKey(arr: array<int>, heapSize: int, i: int) returns (root: int, newHeapSize: int)
-    requires 0 <= i < heapSize <= arr.Length
-    requires INT_MAX > arr[i]
-    requires isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
-    requires isMaxHeapChildren(arr[..], 0, heapSize)
-    requires isMaxHeap(arr[..], heapSize)
-    modifies arr
-    ensures newHeapSize == heapSize - 1
-    ensures 0 <= i <= newHeapSize < arr.Length
-    ensures isMaxHeap(arr[..], newHeapSize)
-{
-    increaseKey(arr, heapSize, i, INT_MAX);
-    root, newHeapSize := removeMax(arr, heapSize);
-}
-
-// Test method that maxHeapify does it's job
-method main() {
-    var arr := new int[10];
-    // assume(arr[0] == 10 && arr[1] == 0 && arr[2] == 9 && arr[3] == 8 && arr[4] == 9 && arr[5] == 7 && arr[6] == 6 && arr[7] == 5 && arr[8] == 4 && arr[9] == 3);
-    arr[0] := 10; arr[1] := 0; arr[2] := 9; arr[3] := 8; arr[4] := 9; arr[5] := 7; arr[6] := 6; arr[7] := 5; arr[8] := 4; arr[9] := 3;
-    assert(arr[1] <= arr[3]);
-    assert(arr[1] <= arr[4]);
-    maxHeapify(1, 10, arr);      // [10, 9, 9, 8, 3, 7, 6, 5, 4, 0]
-    assert(arr[0] >= arr[1]);
-    assert(arr[0] >= arr[2]);
-    assert(arr[1] >= arr[3]);
-    assert(arr[1] >= arr[4]);
-    assert(arr[4] >= arr[9]);
-    assert(isMaxHeap(arr[..], 10));
-}
