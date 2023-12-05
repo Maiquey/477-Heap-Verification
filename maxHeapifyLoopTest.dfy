@@ -1,10 +1,10 @@
 // Computes the parent
 function parent(i: int, heapSize: int): int
-        ensures 0 < i < heapSize ==> parent(i, heapSize) == (i - 1) / 2
-        ensures (0 >= i || i >= heapSize) ==> parent(i, heapSize) == -1
-    {
-        if (0 < i < heapSize) then (i - 1) / 2 else -1
-    }
+    ensures 0 < i < heapSize ==> parent(i, heapSize) == (i - 1) / 2
+    ensures (0 >= i || i >= heapSize) ==> parent(i, heapSize) == -1
+{
+    if (0 < i < heapSize) then (i - 1) / 2 else -1
+}
 
 // Computes the left child
 function lChild(i: int, heapSize: int): int
@@ -61,6 +61,7 @@ method maxHeapify(root: int, heapSize: int, arr: array<int>)
         var largest := i;
         var left := lChild(i, heapSize);
         var right := rChild(i, heapSize);
+        
         if left < heapSize && arr[left] >= arr[i]
         {
             largest := left;
