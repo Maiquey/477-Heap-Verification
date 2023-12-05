@@ -33,7 +33,7 @@ predicate isMaxHeap(arr: seq<int>, heapSize: int)
 
 // Checks that the max heap property holds on all elements other than the given index in the array
 // Also checks that the parent (if it exists) of the given index is greater than or equal to the index's children (if they exist)
-predicate isMaxHeapParentsAndChildren(arr: seq<int>, index: int, heapSize: int)
+predicate isMaxHeapParentAndChildren(arr: seq<int>, index: int, heapSize: int)
     requires 0 <= index <= heapSize <= |arr|
 {
     (forall i :: 0 <= i < heapSize && i != index ==>
@@ -46,16 +46,16 @@ predicate isMaxHeapParentsAndChildren(arr: seq<int>, index: int, heapSize: int)
 // Sorts the provided array so that all elements hold to the max heap property
 method maxHeapify(root: int, heapSize: int, arr: array<int>)
     requires 0 <= root < heapSize <= arr.Length
-    requires isMaxHeapParentsAndChildren(arr[..], root, heapSize)
+    requires isMaxHeapParentAndChildren(arr[..], root, heapSize)
     modifies arr
-    ensures isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    ensures isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
     ensures isMaxHeap(arr[..], heapSize)
 {
     var i := root;
 
     while i < heapSize
         invariant 0 <= i <= heapSize
-        invariant isMaxHeapParentsAndChildren(arr[..], i, heapSize)
+        invariant isMaxHeapParentAndChildren(arr[..], i, heapSize)
         decreases heapSize - i
     {   
         var largest := i;
@@ -94,7 +94,7 @@ method maxHeapify(root: int, heapSize: int, arr: array<int>)
 // then decrements the heapSize by 1, and then heapifies so that all elements hold to the max heap property.
 method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize: int)
     requires 0 < heapSize <= arr.Length
-    requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
     requires isMaxHeap(arr[..], heapSize)
     modifies arr
     ensures 0 <= newHeapSize < arr.Length
@@ -109,15 +109,16 @@ method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize
         root := arr[0];
         arr[0] := arr[heapSize - 1];
         newHeapSize := heapSize - 1;
-        assert(isMaxHeapParentsAndChildren(arr[..], 0, newHeapSize));
+        assert(isMaxHeapParentAndChildren(arr[..], 0, newHeapSize));
         maxHeapify(0, newHeapSize, arr);
     }
 }
 
 // Test method that maxHeapify does it's job
 method main() {
-    var arr := new int[10][10, 0, 9, 8, 9, 7, 6, 5, 4, 3];
-    assume(arr[0] == 10 && arr[1] == 0 && arr[2] == 9 && arr[3] == 8 && arr[4] == 9 && arr[5] == 7 && arr[6] == 6 && arr[7] == 5 && arr[8] == 4 && arr[9] == 3);
+    var arr := new int[10];
+    // assume(arr[0] == 10 && arr[1] == 0 && arr[2] == 9 && arr[3] == 8 && arr[4] == 9 && arr[5] == 7 && arr[6] == 6 && arr[7] == 5 && arr[8] == 4 && arr[9] == 3);
+    arr[0] := 10; arr[1] := 0; arr[2] := 9; arr[3] := 8; arr[4] := 9; arr[5] := 7; arr[6] := 6; arr[7] := 5; arr[8] := 4; arr[9] := 3;
     assert(arr[1] <= arr[3]);
     assert(arr[1] <= arr[4]);
     maxHeapify(1, 10, arr);      // [10, 9, 9, 8, 3, 7, 6, 5, 4, 0]
