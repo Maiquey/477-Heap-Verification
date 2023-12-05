@@ -114,6 +114,55 @@ method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize
     }
 }
 
+//InsertKey Section
+
+predicate isMaxHeapParents(arr: seq<int>, index: int, heapSize: int)
+    requires 0 <= index <= heapSize <= |arr|
+{
+    (forall i :: 0 <= i < heapSize && i != index ==>
+        (0 <= parent(i, heapSize) < heapSize ==> arr[parent(i, heapSize)] >= arr[i]))
+}
+
+method insertKey(arr: array<int>, heapSize: int, x: int) returns (newHeapSize: int)
+    requires 0 <= heapSize < arr.Length
+    requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeap(arr[..], heapSize)
+    modifies arr
+    ensures 0 < newHeapSize <= arr.Length
+    ensures newHeapSize == heapSize + 1
+    ensures isMaxHeap(arr[..], newHeapSize)
+{
+    if heapSize == 0 {
+        newHeapSize := heapSize + 1;
+        arr[0] := x;
+    } else {
+        var i := heapSize;
+        arr[i] := x;
+        newHeapSize := heapSize + 1;
+        assert(isMaxHeapParents(arr[..], i, newHeapSize));
+        bubbleUp(0, newHeapSize, arr);
+    }
+}
+
+method bubbleUp(bubble: int, heapSize: int, arr: array<int>)
+    requires 0 <= bubble < heapSize <= arr.Length
+    requires isMaxHeapParents(arr[..], bubble, heapSize)
+    modifies arr
+    ensures isMaxHeapParents(arr[..], 0, heapSize)
+    ensures isMaxHeap(arr[..], heapSize)
+{
+    var i := bubble;
+
+    while i > 0 && arr[(i-1)/2] < arr[i]
+        invariant 0 <= i < heapSize
+        invariant isMaxHeapParents(arr[..], i, heapSize)
+        decreases i
+    {
+        arr[i], arr[(i-1)/2] := arr[(i-1)/2], arr[i];
+        i := (i-1)/2;
+    }
+}
+
 // Test method that maxHeapify does it's job
 method main() {
     var arr := new int[10][10, 0, 9, 8, 9, 7, 6, 5, 4, 3];
