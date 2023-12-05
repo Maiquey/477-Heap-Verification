@@ -31,8 +31,8 @@ predicate isMaxHeap(arr: seq<int>, heapSize: int)
         && (rChild(i, heapSize) < heapSize ==> arr[i] >= arr[rChild(i, heapSize)])
 }
 
-// Checks that the max heap property holds on all elements other than the specified index in the array
-// Also checks that the parent (if it exists) of each element are greater than or equal to the element's children (if they exist)
+// Checks that the max heap property holds on all elements other than the given index in the array
+// Also checks that the parent (if it exists) of the given index is greater than or equal to the index's children (if they exist)
 predicate isMaxHeapParentsAndChildren(arr: seq<int>, index: int, heapSize: int)
     requires 0 <= index <= heapSize <= |arr|
 {
