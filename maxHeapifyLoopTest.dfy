@@ -37,8 +37,7 @@ predicate isMaxHeapParentAndChildren(arr: seq<int>, index: int, heapSize: int)
     requires 0 <= index <= heapSize <= |arr|
 {
     (forall i :: 0 <= i < heapSize && i != index ==>
-        (2*i+1 < heapSize ==> arr[i] >= arr[2*i+1])
-        && (2*i+2 < heapSize ==> arr[i] >= arr[2*i+2]))
+        (2*i+1 < heapSize ==> arr[i] >= arr[2*i+1]) && (2*i+2 < heapSize ==> arr[i] >= arr[2*i+2]))
     && (0 <= parent(index, heapSize) < heapSize && 2*index+1 < heapSize ==> arr[parent(index, heapSize)] >= arr[2*index+1])
     && (0 <= parent(index, heapSize) < heapSize && 2*index+2 < heapSize ==> arr[parent(index, heapSize)] >= arr[2*index+2])
 }
@@ -99,6 +98,7 @@ method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize
     modifies arr
     ensures 0 <= newHeapSize < arr.Length
     ensures newHeapSize == heapSize - 1
+    ensures isMaxHeapParentAndChildren(arr[..], newHeapSize, newHeapSize)
     ensures isMaxHeap(arr[..], newHeapSize)
     ensures root == old(arr[0])
 {
@@ -125,7 +125,7 @@ predicate isMaxHeapParents(arr: seq<int>, index: int, heapSize: int)
 
 method insertKey(arr: array<int>, heapSize: int, x: int) returns (newHeapSize: int)
     requires 0 <= heapSize < arr.Length
-    requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
+    requires isMaxHeapParentAndChildren(arr[..], heapSize, heapSize)
     requires isMaxHeap(arr[..], heapSize)
     modifies arr
     ensures 0 < newHeapSize <= arr.Length
@@ -140,7 +140,7 @@ method insertKey(arr: array<int>, heapSize: int, x: int) returns (newHeapSize: i
         arr[i] := x;
         newHeapSize := heapSize + 1;
         assert(isMaxHeapParents(arr[..], i, newHeapSize));
-        bubbleUp(0, newHeapSize, arr);
+        bubbleUp(i, newHeapSize, arr);  // was 0 which doesn't satisfy bubbleUp pre-condition
     }
 }
 
