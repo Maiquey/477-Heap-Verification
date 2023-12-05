@@ -90,6 +90,8 @@ method maxHeapify(root: int, heapSize: int, arr: array<int>)
     }
 }
 
+// Gets the max element in the heap (at index 0). Replaces it with the last element in the heap,
+// then decrements the heapSize by 1, and then heapifies so that all elements hold to the max heap property.
 method removeMax(arr: array<int>, heapSize: int) returns (root: int, newHeapSize: int)
     requires 0 < heapSize <= arr.Length
     requires isMaxHeapParentsAndChildren(arr[..], heapSize, heapSize)
